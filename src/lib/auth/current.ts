@@ -1,36 +1,113 @@
-import { getEntity, getMembershipByUserAndEntity } from "@/lib/db/queries/entity";
+import { cache } from "react";
+import { redirect } from "next/navigation";
+import { and, eq, isNull } from "drizzle-orm";
+import { db } from "@/lib/db/client";
+import { entities, memberships } from "@/lib/db/schema";
+import type { Entity, Membership } from "@/lib/db/schema";
+import { stackServerApp } from "@/stack/server";
 
 /**
- * Identidad del usuario y entidad activos.
+ * Identidad del user activo según Stack Auth, y su membership/entity en Mango.
  *
- * Por ahora HARDCODEADO mientras no tengamos Stack Auth. Cuando se inicialice,
- * estos helpers van a leer de la session real:
- *   - currentUserId() → (await auth()).userId
- *   - currentEntityId() → leer la primera entity del user, o un selector si
- *     tiene varias.
+ * Usamos React `cache()` para que dentro de un mismo request varias páginas
+ * llamen a estos helpers sin duplicar queries (layout + page + componente).
+ *
+ * Migración: la primera vez que un user loguea con un email que YA existe en
+ * memberships.invited_email (caso típico: el seed marcó `mem_matias` con
+ * matiasitw@gmail.com), se le asocia el userId real de Stack a ese membership.
+ * Eso preserva todos los movs/inversiones del seed.
  */
 
-export const CURRENT_USER_ID = "user_matias";
-export const CURRENT_ENTITY_ID = "ent_garcia";
+const SIGN_IN_PATH = "/handler/sign-in";
 
+export const currentUser = cache(async () => {
+  return stackServerApp.getUser();
+});
+
+export async function requireUser() {
+  const user = await currentUser();
+  if (!user) redirect(SIGN_IN_PATH);
+  return user;
+}
+
+/**
+ * Resuelve (o migra) el membership del Stack user actual.
+ * Devuelve undefined si el user no tiene membership ni invitación pendiente
+ * (caso onboarding — pendiente).
+ */
+export const currentMembership = cache(
+  async (): Promise<Membership | undefined> => {
+    const user = await currentUser();
+    if (!user) return undefined;
+
+    // 1) Por userId real
+    const byUserId = await db
+      .select()
+      .from(memberships)
+      .where(
+        and(eq(memberships.userId, user.id), eq(memberships.active, true)),
+      )
+      .limit(1);
+    if (byUserId[0]) return byUserId[0];
+
+    // 2) Por email (migración del seed o invitación aceptada)
+    const email = user.primaryEmail;
+    if (email) {
+      const byEmail = await db
+        .select()
+        .from(memberships)
+        .where(
+          and(
+            eq(memberships.invitedEmail, email),
+            eq(memberships.active, true),
+          ),
+        )
+        .limit(1);
+      if (byEmail[0]) {
+        const [migrated] = await db
+          .update(memberships)
+          .set({
+            userId: user.id,
+            joinedAt: byEmail[0].joinedAt ?? new Date(),
+            // Si el nombre del seed era genérico ("Matías") lo conservamos;
+            // si estaba vacío, usamos el displayName de Stack.
+            name: byEmail[0].name || user.displayName || email,
+          })
+          .where(eq(memberships.id, byEmail[0].id))
+          .returning();
+        return migrated;
+      }
+    }
+
+    return undefined;
+  },
+);
+
+export const currentEntity = cache(
+  async (): Promise<Entity | undefined> => {
+    const m = await currentMembership();
+    if (!m) return undefined;
+    const [e] = await db
+      .select()
+      .from(entities)
+      .where(and(eq(entities.id, m.entityId), isNull(entities.deletedAt)))
+      .limit(1);
+    return e;
+  },
+);
+
+/** Helper para queries: tira al sign-in si no hay user. */
 export async function currentUserId(): Promise<string> {
-  // TODO Sprint Stack Auth: const { userId } = await auth(); return userId;
-  return CURRENT_USER_ID;
+  const u = await requireUser();
+  return u.id;
 }
 
+/** Helper para queries: tira al sign-in si no hay membership/entity. */
 export async function currentEntityId(): Promise<string> {
-  // TODO Sprint Stack Auth: derivar del user (puede tener varias entidades)
-  return CURRENT_ENTITY_ID;
-}
-
-export async function currentEntity() {
-  return getEntity(await currentEntityId());
-}
-
-export async function currentMembership() {
-  const [userId, entityId] = await Promise.all([
-    currentUserId(),
-    currentEntityId(),
-  ]);
-  return getMembershipByUserAndEntity(userId, entityId);
+  const m = await currentMembership();
+  if (!m) {
+    // TODO: cuando exista el onboarding (/welcome o similar), redirigir ahí.
+    redirect(SIGN_IN_PATH);
+  }
+  return m.entityId;
 }
