@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mango — Mockup dashboard + inversiones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --background: #0e0b16;
+        --foreground: #f5f3ff;
+        --card: #1a1426;
+        --card-2: #211a30;
+        --primary: #7b3ff2;
+        --primary-hover: #9963ff;
+        --secondary: #2a2236;
+        --muted: #1a1426;
+        --muted-foreground: #a6a1b8;
+        --border: #2a2236;
+        --success: #22c55e;
+        --destructive: #ef4444;
+        --warning: #f59e0b;
+        --info: #06b6d4;
+      }
+      html,
+      body {
+        background: var(--background);
+        color: var(--foreground);
+      }
+      body {
+        font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+        font-feature-settings: "cv11", "ss01";
+        -webkit-font-smoothing: antialiased;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum";
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+      }
+      .card-2 {
+        background: var(--card-2);
+        border: 1px solid var(--border);
+      }
+      .primary-glow {
+        background:
+          radial-gradient(
+            120% 80% at 20% 0%,
+            rgba(123, 63, 242, 0.45) 0%,
+            rgba(123, 63, 242, 0) 60%
+          ),
+          var(--card);
+      }
+      .success-glow {
+        background:
+          radial-gradient(
+            120% 80% at 80% 0%,
+            rgba(34, 197, 94, 0.35) 0%,
+            rgba(34, 197, 94, 0) 60%
+          ),
+          var(--card);
+      }
+      .text-muted {
+        color: var(--muted-foreground);
+      }
+      .text-success {
+        color: var(--success);
+      }
+      .text-destructive {
+        color: var(--destructive);
+      }
+      .text-warning {
+        color: var(--warning);
+      }
+      .bg-primary-soft {
+        background: color-mix(in oklab, var(--primary) 15%, transparent);
+        color: var(--primary-hover);
+      }
+      .bg-success-soft {
+        background: color-mix(in oklab, var(--success) 15%, transparent);
+        color: var(--success);
+      }
+      .bg-destructive-soft {
+        background: color-mix(in oklab, var(--destructive) 15%, transparent);
+        color: var(--destructive);
+      }
+      .bg-warning-soft {
+        background: color-mix(in oklab, var(--warning) 15%, transparent);
+        color: var(--warning);
+      }
+      .bg-info-soft {
+        background: color-mix(in oklab, var(--info) 15%, transparent);
+        color: var(--info);
+      }
+      .fab {
+        background: linear-gradient(135deg, #9963ff 0%, #7b3ff2 100%);
+        box-shadow:
+          0 12px 32px -8px rgba(123, 63, 242, 0.6),
+          0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+      }
+      .pill {
+        background: var(--secondary);
+        border: 1px solid var(--border);
+      }
+      .divider {
+        border-color: var(--border);
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .scrollbar-hide {
+        scrollbar-width: none;
+      }
+      /* phone frame solo en desktop, full-bleed en mobile */
+      @media (min-width: 768px) {
+        .phone {
+          width: 420px;
+          border-radius: 40px;
+          border: 1px solid var(--border);
+          box-shadow:
+            0 30px 80px -20px rgba(0, 0, 0, 0.8),
+            0 0 0 6px #0a0814,
+            0 0 0 7px var(--border);
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+      }
+      /* donut */
+      .donut {
+        width: 140px;
+        height: 140px;
+        border-radius: 9999px;
+        background: conic-gradient(
+          var(--primary) 0% 35%,
+          #06b6d4 35% 57%,
+          var(--success) 57% 72%,
+          var(--warning) 72% 84%,
+          var(--destructive) 84% 94%,
+          var(--muted-foreground) 94% 100%
+        );
+        position: relative;
+      }
+      .donut::after {
+        content: "";
+        position: absolute;
+        inset: 14px;
+        background: var(--card);
+        border-radius: 9999px;
+      }
+    </style>
+  </head>
+  <body class="dark min-h-screen">
+    <div class="mx-auto max-w-7xl px-4 py-6 md:py-10">
+      <header class="mb-6 flex items-center justify-between md:mb-10">
+        <div>
+          <p class="text-xs uppercase tracking-widest text-muted">Mockup</p>
+          <div class="mt-1 flex items-baseline gap-3">
+            <h1
+              class="text-5xl font-bold tracking-tight"
+              style="
+                background: linear-gradient(135deg, #9963ff 0%, #7b3ff2 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+              "
+            >
+              Mango
+            </h1>
+            <span class="text-sm text-muted">La plata de tu familia.</span>
+          </div>
+          <p class="mt-2 text-sm text-muted">
+            Ualá vibe · violeta
+            <span class="tabular">#7B3FF2</span> · dark-first · mobile-first
+          </p>
+        </div>
+        <div class="hidden items-center gap-2 md:flex">
+          <span class="pill rounded-full px-3 py-1.5 text-xs text-muted"
+            >Dashboard + Inversiones</span
+          >
+        </div>
+      </header>
+
+      <!-- ===========================================================
+           DOS PANTALLAS LADO A LADO EN DESKTOP, APILADAS EN MOBILE
+           =========================================================== -->
+      <div class="space-y-8 md:flex md:flex-wrap md:items-start md:justify-center md:gap-8 md:space-y-0">
+
+        <!-- =========================================================
+             PHONE 1 — DASHBOARD
+             ========================================================= -->
+        <div class="phone">
+          <div class="flex min-h-[860px] flex-col">
+            <!-- Top bar -->
+            <div class="flex items-center justify-between px-5 pt-6 pb-3">
+              <button
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-soft text-sm font-semibold"
+                aria-label="Menú"
+              >
+                FG
+              </button>
+              <button
+                class="pill flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm"
+              >
+                <span class="text-muted">Mayo</span>
+                <span class="font-medium">2026</span>
+                <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <button
+                class="pill flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
+                title="Cotización dólar blue"
+              >
+                <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+                <span class="text-muted">USD</span>
+                <span class="tabular font-medium">$ 1.247</span>
+              </button>
+            </div>
+
+            <!-- Hero balance -->
+            <section class="px-5 pt-3">
+              <div class="primary-glow relative overflow-hidden rounded-2xl p-6">
+                <div class="mb-2 flex items-center justify-between">
+                  <p class="text-xs text-muted">Balance del mes</p>
+                  <div class="pill flex rounded-full p-0.5 text-xs">
+                    <button class="rounded-full bg-foreground px-3 py-1 font-semibold text-black">ARS</button>
+                    <button class="rounded-full px-3 py-1 text-muted">USD</button>
+                  </div>
+                </div>
+                <p class="tabular text-5xl font-semibold tracking-tight">
+                  <span class="text-muted">$</span> 1.842.300<span class="text-2xl text-muted">,00</span>
+                </p>
+                <div class="mt-3 flex items-center gap-2 text-sm">
+                  <span class="bg-success-soft flex items-center gap-1 rounded-full px-2 py-0.5">
+                    <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 stroke-current" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                    <span class="tabular font-medium">12,4%</span>
+                  </span>
+                  <span class="text-muted">vs abril</span>
+                </div>
+                <p class="mt-4 text-xs text-muted">
+                  Equivale a <span class="tabular text-foreground">US$ 1.477,21</span>
+                </p>
+              </div>
+            </section>
+
+            <!-- Quick actions -->
+            <section class="px-5 pt-5">
+              <div class="grid grid-cols-4 gap-3">
+                <button class="card flex flex-col items-center gap-1.5 rounded-2xl py-3">
+                  <span class="bg-success-soft flex h-9 w-9 items-center justify-center rounded-full">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                  </span>
+                  <span class="text-[11px] text-muted">Ingreso</span>
+                </button>
+                <button class="card flex flex-col items-center gap-1.5 rounded-2xl py-3">
+                  <span class="bg-destructive-soft flex h-9 w-9 items-center justify-center rounded-full">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+                  </span>
+                  <span class="text-[11px] text-muted">Gasto</span>
+                </button>
+                <button class="card flex flex-col items-center gap-1.5 rounded-2xl py-3">
+                  <span class="bg-primary-soft flex h-9 w-9 items-center justify-center rounded-full">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V5a1 1 0 1 0-2 0v3a4.82 4.82 0 0 0-2 0V5a1 1 0 1 0-2 0v3.06a5 5 0 0 0-2.91 1.79L4 8v7a3 3 0 0 0 3 3"/><path d="M16 10h.01"/></svg>
+                  </span>
+                  <span class="text-[11px] text-muted">Ahorro</span>
+                </button>
+                <button class="card flex flex-col items-center gap-1.5 rounded-2xl py-3">
+                  <span class="bg-primary-soft flex h-9 w-9 items-center justify-center rounded-full">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                  </span>
+                  <span class="text-[11px] text-muted">Invertir</span>
+                </button>
+              </div>
+            </section>
+
+            <!-- Mini-stats -->
+            <section class="px-5 pt-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-1 flex items-center gap-1.5 text-xs text-muted">
+                    <span class="h-2 w-2 rounded-full bg-success"></span>Ingresos
+                  </div>
+                  <p class="tabular text-xl font-semibold">$ 2.450.000</p>
+                  <p class="tabular mt-0.5 text-[11px] text-muted">US$ 1.964</p>
+                </div>
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-1 flex items-center gap-1.5 text-xs text-muted">
+                    <span class="h-2 w-2 rounded-full bg-destructive"></span>Gastos
+                  </div>
+                  <p class="tabular text-xl font-semibold">$ 607.700</p>
+                  <p class="tabular mt-0.5 text-[11px] text-muted">US$ 487</p>
+                </div>
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-1 flex items-center gap-1.5 text-xs text-muted">
+                    <span class="h-2 w-2 rounded-full" style="background: var(--primary)"></span>Ahorro
+                  </div>
+                  <p class="tabular text-xl font-semibold">$ 250.000</p>
+                  <p class="tabular mt-0.5 text-[11px] text-muted">US$ 200</p>
+                </div>
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-1 flex items-center gap-1.5 text-xs text-muted">
+                    <span class="h-2 w-2 rounded-full" style="background: var(--warning)"></span>Inversión
+                  </div>
+                  <p class="tabular text-xl font-semibold">$ 180.000</p>
+                  <p class="tabular mt-0.5 text-[11px] text-muted">US$ 144</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Top categorías -->
+            <section class="px-5 pt-5">
+              <div class="card rounded-2xl p-4">
+                <div class="mb-3 flex items-center justify-between">
+                  <h3 class="text-sm font-semibold">Top categorías</h3>
+                  <button class="text-xs text-muted">Ver todo</button>
+                </div>
+                <div class="space-y-3">
+                  <div>
+                    <div class="mb-1 flex items-center justify-between text-sm">
+                      <span class="flex items-center gap-2"><span class="text-base">🛒</span>Supermercado</span>
+                      <span class="tabular text-muted">$ 180.500</span>
+                    </div>
+                    <div class="h-1.5 w-full overflow-hidden rounded-full" style="background: var(--secondary)">
+                      <div class="h-full rounded-full" style="width: 30%; background: var(--primary)"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="mb-1 flex items-center justify-between text-sm">
+                      <span class="flex items-center gap-2"><span class="text-base">🏠</span>Vivienda</span>
+                      <span class="tabular text-muted">$ 150.000</span>
+                    </div>
+                    <div class="h-1.5 w-full overflow-hidden rounded-full" style="background: var(--secondary)">
+                      <div class="h-full rounded-full" style="width: 25%; background: var(--primary)"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="mb-1 flex items-center justify-between text-sm">
+                      <span class="flex items-center gap-2"><span class="text-base">🍽</span>Restaurantes</span>
+                      <span class="tabular text-muted">$ 95.300</span>
+                    </div>
+                    <div class="h-1.5 w-full overflow-hidden rounded-full" style="background: var(--secondary)">
+                      <div class="h-full rounded-full" style="width: 16%; background: var(--primary)"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="mb-1 flex items-center justify-between text-sm">
+                      <span class="flex items-center gap-2"><span class="text-base">🚗</span>Transporte</span>
+                      <span class="tabular text-muted">$ 72.000</span>
+                    </div>
+                    <div class="h-1.5 w-full overflow-hidden rounded-full" style="background: var(--secondary)">
+                      <div class="h-full rounded-full" style="width: 12%; background: var(--primary)"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Movimientos recientes -->
+            <section class="px-5 pt-5 pb-32">
+              <div class="mb-3 flex items-center justify-between">
+                <h3 class="text-sm font-semibold">Últimos movimientos</h3>
+                <button class="text-xs text-muted">Ver todo</button>
+              </div>
+              <div class="space-y-4">
+                <div>
+                  <p class="mb-2 text-[11px] uppercase tracking-widest text-muted">Hoy</p>
+                  <div class="card divide-y divider rounded-2xl">
+                    <div class="flex items-center justify-between p-4">
+                      <div class="flex items-center gap-3">
+                        <span class="bg-destructive-soft flex h-10 w-10 items-center justify-center rounded-full text-base">🍽</span>
+                        <div>
+                          <p class="text-sm font-medium">Bar Sur</p>
+                          <p class="text-[11px] text-muted">Restaurantes · Matías</p>
+                        </div>
+                      </div>
+                      <p class="tabular text-sm font-semibold text-destructive">- $ 12.500</p>
+                    </div>
+                    <div class="flex items-center justify-between p-4">
+                      <div class="flex items-center gap-3">
+                        <span class="bg-destructive-soft flex h-10 w-10 items-center justify-center rounded-full text-base">🛒</span>
+                        <div>
+                          <p class="text-sm font-medium">Coto Belgrano</p>
+                          <p class="text-[11px] text-muted">Supermercado · Sofía</p>
+                        </div>
+                      </div>
+                      <p class="tabular text-sm font-semibold text-destructive">- $ 18.200</p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <p class="mb-2 text-[11px] uppercase tracking-widest text-muted">Ayer</p>
+                  <div class="card divide-y divider rounded-2xl">
+                    <div class="flex items-center justify-between p-4">
+                      <div class="flex items-center gap-3">
+                        <span class="bg-success-soft flex h-10 w-10 items-center justify-center rounded-full text-base">💼</span>
+                        <div>
+                          <p class="text-sm font-medium">Sueldo Mayo</p>
+                          <p class="text-[11px] text-muted">Sueldo · Matías</p>
+                        </div>
+                      </div>
+                      <p class="tabular text-sm font-semibold text-success">+ $ 2.450.000</p>
+                    </div>
+                    <div class="flex items-center justify-between p-4">
+                      <div class="flex items-center gap-3">
+                        <span class="bg-destructive-soft flex h-10 w-10 items-center justify-center rounded-full text-base">🏠</span>
+                        <div>
+                          <p class="text-sm font-medium">Expensas mayo</p>
+                          <p class="text-[11px] text-muted">Vivienda · Familia</p>
+                        </div>
+                      </div>
+                      <p class="tabular text-sm font-semibold text-destructive">- $ 95.000</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Bottom nav + FAB -->
+            <div class="pointer-events-none sticky bottom-0 z-50 w-full px-4 pb-4">
+              <div class="pointer-events-auto relative mx-auto max-w-[420px]">
+                <button class="fab absolute -top-7 left-1/2 z-10 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full text-white" aria-label="Nuevo movimiento">
+                  <svg viewBox="0 0 24 24" class="h-6 w-6 stroke-current" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                </button>
+                <nav class="card flex items-center justify-around rounded-2xl py-3">
+                  <button class="flex flex-col items-center gap-0.5 px-3" style="color: var(--primary-hover)">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2V9.5Z"/></svg>
+                    <span class="text-[10px] font-medium">Home</span>
+                  </button>
+                  <button class="flex flex-col items-center gap-0.5 px-3 text-muted">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h12"/></svg>
+                    <span class="text-[10px]">Movs.</span>
+                  </button>
+                  <div class="w-14"></div>
+                  <button class="flex flex-col items-center gap-0.5 px-3 text-muted">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                    <span class="text-[10px]">Inv.</span>
+                  </button>
+                  <button class="flex flex-col items-center gap-0.5 px-3 text-muted">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 6-6"/></svg>
+                    <span class="text-[10px]">Reportes</span>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =========================================================
+             PHONE 2 — INVERSIONES
+             ========================================================= -->
+        <div class="phone">
+          <div class="flex min-h-[860px] flex-col">
+            <!-- Top bar -->
+            <div class="flex items-center justify-between px-5 pt-6 pb-3">
+              <button class="pill flex h-10 w-10 items-center justify-center rounded-full" aria-label="Atrás">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <h2 class="text-sm font-semibold">Inversiones</h2>
+              <button class="pill flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs" title="Cotización dólar blue">
+                <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+                <span class="text-muted">USD</span>
+                <span class="tabular font-medium">$ 1.247</span>
+              </button>
+            </div>
+
+            <!-- Hero portfolio -->
+            <section class="px-5 pt-3">
+              <div class="success-glow relative overflow-hidden rounded-2xl p-6">
+                <div class="mb-2 flex items-center justify-between">
+                  <p class="text-xs text-muted">Patrimonio invertido</p>
+                  <div class="pill flex rounded-full p-0.5 text-xs">
+                    <button class="rounded-full bg-foreground px-3 py-1 font-semibold text-black">ARS</button>
+                    <button class="rounded-full px-3 py-1 text-muted">USD</button>
+                  </div>
+                </div>
+                <p class="tabular text-5xl font-semibold tracking-tight">
+                  <span class="text-muted">$</span> 14.890.000<span class="text-2xl text-muted">,00</span>
+                </p>
+                <div class="mt-3 flex items-center gap-2 text-sm">
+                  <span class="bg-success-soft flex items-center gap-1 rounded-full px-2 py-0.5">
+                    <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 stroke-current" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                    <span class="tabular font-medium">+ $ 2.440.000 (+19,6%)</span>
+                  </span>
+                </div>
+                <p class="mt-4 text-xs text-muted">
+                  Equivale a <span class="tabular text-foreground">US$ 11.940</span>
+                </p>
+              </div>
+            </section>
+
+            <!-- Descomposición ganancia real vs cotización -->
+            <section class="px-5 pt-4">
+              <div class="card rounded-2xl p-4">
+                <div class="mb-3 flex items-center gap-2">
+                  <span class="bg-info-soft flex h-7 w-7 items-center justify-center rounded-full">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                  </span>
+                  <h3 class="text-sm font-semibold">¿De dónde viene el profit?</h3>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="rounded-xl p-3" style="background: var(--card-2)">
+                    <p class="text-[11px] text-muted">Ganancia real (activos)</p>
+                    <p class="tabular text-lg font-semibold text-success">+ US$ 980</p>
+                    <p class="tabular text-[11px] text-muted">+9,8% en USD</p>
+                  </div>
+                  <div class="rounded-xl p-3" style="background: var(--card-2)">
+                    <p class="text-[11px] text-muted">Por cotización</p>
+                    <p class="tabular text-lg font-semibold text-warning">+ $ 1.220.000</p>
+                    <p class="tabular text-[11px] text-muted">dólar 1.180 → 1.247</p>
+                  </div>
+                </div>
+                <p class="mt-3 text-[11px] text-muted leading-relaxed">
+                  El dólar subió 5,7% en el mes. Esa porción del profit no es ganancia genuina — es solo que tus activos USD valen más pesos.
+                </p>
+              </div>
+            </section>
+
+            <!-- Composición por asset class -->
+            <section class="px-5 pt-4">
+              <div class="card rounded-2xl p-4">
+                <h3 class="mb-3 text-sm font-semibold">Composición</h3>
+                <div class="flex items-center gap-4">
+                  <div class="donut shrink-0"></div>
+                  <div class="flex-1 space-y-1.5 text-xs">
+                    <div class="flex items-center justify-between">
+                      <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full" style="background: var(--primary)"></span>Dólares MEP</span>
+                      <span class="tabular text-muted">35%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full" style="background: #06b6d4"></span>Acciones / CEDEARs</span>
+                      <span class="tabular text-muted">22%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-success"></span>Cripto</span>
+                      <span class="tabular text-muted">15%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full" style="background: var(--warning)"></span>Plazo fijo</span>
+                      <span class="tabular text-muted">12%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-destructive"></span>Bonos</span>
+                      <span class="tabular text-muted">10%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full" style="background: var(--muted-foreground)"></span>Inmueble</span>
+                      <span class="tabular text-muted">6%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Tabs filtro -->
+            <section class="px-5 pt-4">
+              <div class="pill inline-flex rounded-full p-1 text-xs">
+                <button class="rounded-full bg-foreground px-3 py-1.5 font-semibold text-black">Todos</button>
+                <button class="rounded-full px-3 py-1.5 text-muted">Mejores</button>
+                <button class="rounded-full px-3 py-1.5 text-muted">Peores</button>
+                <button class="rounded-full px-3 py-1.5 text-muted">Por activo</button>
+              </div>
+            </section>
+
+            <!-- Lista de inversiones -->
+            <section class="px-5 pt-4 pb-32">
+              <div class="space-y-3">
+
+                <!-- BTC (mejor performer) -->
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-3 flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <span class="bg-success-soft flex h-11 w-11 items-center justify-center rounded-full text-lg">₿</span>
+                      <div>
+                        <p class="text-sm font-semibold">Bitcoin</p>
+                        <p class="text-[11px] text-muted">BTC · Cripto · Lemon</p>
+                      </div>
+                    </div>
+                    <span class="bg-destructive-soft rounded-full px-2 py-0.5 text-[10px] font-medium uppercase">Alto</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p class="text-muted">Invertí</p>
+                      <p class="tabular font-medium">US$ 3.250</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Vale</p>
+                      <p class="tabular font-medium">US$ 4.750</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Profit</p>
+                      <p class="tabular font-semibold text-success">+46,2%</p>
+                    </div>
+                  </div>
+                  <div class="mt-2 text-[11px] text-muted">
+                    0,05 BTC · compra <span class="tabular">22/01/2026</span>
+                  </div>
+                </div>
+
+                <!-- AL30 -->
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-3 flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <span class="bg-primary-soft flex h-11 w-11 items-center justify-center rounded-full text-lg">🏛</span>
+                      <div>
+                        <p class="text-sm font-semibold">AL30</p>
+                        <p class="text-[11px] text-muted">Bono soberano · Galicia</p>
+                      </div>
+                    </div>
+                    <span class="bg-warning-soft rounded-full px-2 py-0.5 text-[10px] font-medium uppercase">Medio</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p class="text-muted">Invertí</p>
+                      <p class="tabular font-medium">$ 200.000</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Vale</p>
+                      <p class="tabular font-medium">$ 245.000</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Profit</p>
+                      <p class="tabular font-semibold text-success">+22,5%</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AAPL -->
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-3 flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <span class="bg-info-soft flex h-11 w-11 items-center justify-center rounded-full text-lg">📈</span>
+                      <div>
+                        <p class="text-sm font-semibold">Apple Inc.</p>
+                        <p class="text-[11px] text-muted">AAPL · CEDEAR · Cocos</p>
+                      </div>
+                    </div>
+                    <span class="bg-success-soft rounded-full px-2 py-0.5 text-[10px] font-medium uppercase">Bajo</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p class="text-muted">Invertí</p>
+                      <p class="tabular font-medium">US$ 1.800</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Vale</p>
+                      <p class="tabular font-medium">US$ 2.150</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Profit</p>
+                      <p class="tabular font-semibold text-success">+19,4%</p>
+                    </div>
+                  </div>
+                  <div class="mt-2 text-[11px] text-muted">
+                    10 acciones · promedio <span class="tabular">US$ 180</span>
+                  </div>
+                </div>
+
+                <!-- Plazo fijo -->
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-3 flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <span class="bg-warning-soft flex h-11 w-11 items-center justify-center rounded-full text-lg">🏦</span>
+                      <div>
+                        <p class="text-sm font-semibold">Plazo fijo 90 días</p>
+                        <p class="text-[11px] text-muted">Galicia · vence 18/08</p>
+                      </div>
+                    </div>
+                    <span class="bg-success-soft rounded-full px-2 py-0.5 text-[10px] font-medium uppercase">Bajo</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p class="text-muted">Invertí</p>
+                      <p class="tabular font-medium">$ 180.000</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Vale</p>
+                      <p class="tabular font-medium">$ 210.000</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Profit</p>
+                      <p class="tabular font-semibold text-success">+16,7%</p>
+                    </div>
+                  </div>
+                  <div class="mt-2 text-[11px] text-muted">
+                    TNA 110% · interés corrido
+                  </div>
+                </div>
+
+                <!-- Dólares MEP — caso especial: solo cotización -->
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-3 flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <span class="bg-success-soft flex h-11 w-11 items-center justify-center rounded-full text-lg">💵</span>
+                      <div>
+                        <p class="text-sm font-semibold">Dólares MEP</p>
+                        <p class="text-[11px] text-muted">USD cash · Balanz</p>
+                      </div>
+                    </div>
+                    <span class="bg-success-soft rounded-full px-2 py-0.5 text-[10px] font-medium uppercase">Bajo</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p class="text-muted">Invertí</p>
+                      <p class="tabular font-medium">$ 9.440.000</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Vale</p>
+                      <p class="tabular font-medium">$ 9.976.000</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Profit</p>
+                      <p class="tabular font-semibold text-warning">+5,7%</p>
+                    </div>
+                  </div>
+                  <div class="mt-2 flex items-center gap-1.5 text-[11px]" style="color: var(--info)">
+                    <svg viewBox="0 0 24 24" class="h-3 w-3 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    8.000 USD · profit es solo por cotización
+                  </div>
+                </div>
+
+                <!-- Cochera Martinez -->
+                <div class="card rounded-2xl p-4">
+                  <div class="mb-3 flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                      <span class="bg-primary-soft flex h-11 w-11 items-center justify-center rounded-full text-lg">🏠</span>
+                      <div>
+                        <p class="text-sm font-semibold">Cochera Martinez</p>
+                        <p class="text-[11px] text-muted">Inmueble · escritura propia</p>
+                      </div>
+                    </div>
+                    <span class="bg-success-soft rounded-full px-2 py-0.5 text-[10px] font-medium uppercase">Bajo</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p class="text-muted">Invertí</p>
+                      <p class="tabular font-medium">US$ 25.000</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Vale</p>
+                      <p class="tabular font-medium">US$ 25.000</p>
+                    </div>
+                    <div>
+                      <p class="text-muted">Profit</p>
+                      <p class="tabular font-semibold text-muted">0,0%</p>
+                    </div>
+                  </div>
+                  <div class="mt-2 text-[11px] text-muted">
+                    Valuación al <span class="tabular">01/04/2026</span> · actualizar manualmente
+                  </div>
+                </div>
+
+              </div>
+            </section>
+
+            <!-- Bottom nav + FAB (Inversiones tab activo) -->
+            <div class="pointer-events-none sticky bottom-0 z-50 w-full px-4 pb-4">
+              <div class="pointer-events-auto relative mx-auto max-w-[420px]">
+                <button class="fab absolute -top-7 left-1/2 z-10 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full text-white" aria-label="Nueva inversión">
+                  <svg viewBox="0 0 24 24" class="h-6 w-6 stroke-current" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                </button>
+                <nav class="card flex items-center justify-around rounded-2xl py-3">
+                  <button class="flex flex-col items-center gap-0.5 px-3 text-muted">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2V9.5Z"/></svg>
+                    <span class="text-[10px]">Home</span>
+                  </button>
+                  <button class="flex flex-col items-center gap-0.5 px-3 text-muted">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h12"/></svg>
+                    <span class="text-[10px]">Movs.</span>
+                  </button>
+                  <div class="w-14"></div>
+                  <button class="flex flex-col items-center gap-0.5 px-3" style="color: var(--primary-hover)">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                    <span class="text-[10px] font-medium">Inv.</span>
+                  </button>
+                  <button class="flex flex-col items-center gap-0.5 px-3 text-muted">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 stroke-current" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 6-6"/></svg>
+                    <span class="text-[10px]">Reportes</span>
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Notas debajo -->
+      <div class="mx-auto mt-8 max-w-3xl text-sm text-muted md:mt-12">
+        <p class="mb-2"><strong class="text-foreground">Notas del mockup</strong></p>
+        <ul class="list-disc space-y-1 pl-5">
+          <li>El frame de teléfono es solo del mockup — la app real es responsive full-width y crece a sidebar en md+.</li>
+          <li>El toggle ARS/USD vive pegado al balance, no escondido en settings.</li>
+          <li><strong class="text-foreground">Inversiones — descomposición ganancia real vs cotización</strong>: clave para el contexto argentino. Si dejás solo el profit en ARS, te da una sensación falsa de éxito cuando lo único que pasó fue que el dólar subió. La tarjeta lo separa explícitamente.</li>
+          <li>Las cards de inversiones traen risk badge, broker, fecha de compra, y un grid de 3 columnas (Invertí · Vale · Profit) para escaneo rápido.</li>
+          <li>Casos especiales (dólares MEP, inmueble) muestran un mini-callout aclaratorio en lugar de pretender que son inversiones "normales".</li>
+          <li>Todos los montos usan <code class="tabular text-foreground">tabular-nums</code> para que no bailen al actualizar.</li>
+          <li>Cotización dólar visible en topbar (chip discreto) — un click la actualiza.</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
