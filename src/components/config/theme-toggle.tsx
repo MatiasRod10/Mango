@@ -1,29 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Monitor, Moon, Sun } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const OPTIONS: { value: "light" | "dark" | "system"; label: string; icon: LucideIcon }[] = [
+const OPTIONS: {
+  value: "light" | "dark" | "system";
+  label: string;
+  icon: LucideIcon;
+}[] = [
   { value: "light", label: "Claro", icon: Sun },
   { value: "dark", label: "Oscuro", icon: Moon },
   { value: "system", label: "Sistema", icon: Monitor },
 ];
 
+// Patrón React-recommended para detectar hidratación sin setState-en-effect.
+// Server snapshot = false, client snapshot = true. La diferencia gatilla un
+// re-render natural cuando hidratamos.
+const emptySubscribe = () => () => {};
+function useHydrated() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+}
+
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // Evitar hydration mismatch: el theme real solo se conoce en cliente.
-  useEffect(() => setMounted(true), []);
+  const hydrated = useHydrated();
 
   return (
     <div className="inline-flex rounded-full border border-border bg-secondary p-0.5">
       {OPTIONS.map((opt) => {
         const Icon = opt.icon;
-        const active = mounted && theme === opt.value;
+        const active = hydrated && theme === opt.value;
         return (
           <button
             key={opt.value}
