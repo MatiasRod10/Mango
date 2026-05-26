@@ -3,7 +3,8 @@ import { QuickActions } from "@/components/dashboard/quick-actions";
 import { RecentMovements } from "@/components/dashboard/recent-movements";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
 import { TopCategories } from "@/components/dashboard/top-categories";
-import { movementsForMonth } from "@/lib/dummy/movements";
+import { currentEntityId } from "@/lib/auth/current";
+import { getMovementsForMonth } from "@/lib/db/queries/movements";
 import {
   calculateMonthlyStats,
   topGastoCategories,
@@ -13,14 +14,17 @@ import { getDisplayCurrency } from "@/lib/preferences/display-currency";
 import { previousMonth } from "@/lib/utils/dates";
 
 export default async function DashboardPage() {
-  const [currency, month] = await Promise.all([
+  const [entityId, currency, month] = await Promise.all([
+    currentEntityId(),
     getDisplayCurrency(),
     getActiveMonth(),
   ]);
   const prev = previousMonth(month);
 
-  const thisMonth = movementsForMonth(month);
-  const lastMonth = movementsForMonth(prev);
+  const [thisMonth, lastMonth] = await Promise.all([
+    getMovementsForMonth(entityId, month),
+    getMovementsForMonth(entityId, prev),
+  ]);
 
   const stats = calculateMonthlyStats(thisMonth);
   const lastStats = calculateMonthlyStats(lastMonth);

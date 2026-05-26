@@ -17,7 +17,7 @@ import type { LucideIcon } from "lucide-react";
 import { useKeyboardShortcut } from "@/hooks/use-keyboard-shortcut";
 import { NewMovementSheet } from "./new-movement-sheet";
 import { cn } from "@/lib/utils";
-import type { Movement } from "@/lib/db/schema";
+import type { Movement, Membership } from "@/lib/db/schema";
 
 type MovementType = Movement["type"];
 
@@ -44,7 +44,6 @@ type Action = {
   label: string;
   icon: LucideIcon;
   color: string;
-  /** Ángulo en grados (0 = derecha, 90 = abajo, 180 = izq, 270 = arriba). */
   angle: number;
 };
 
@@ -65,7 +64,19 @@ function angleToOffset(angleDeg: number, radius: number) {
   };
 }
 
-export function QuickAddProvider({ children }: { children: ReactNode }) {
+type Props = {
+  children: ReactNode;
+  /** Memberships de la entidad para popular el "Quién" del form. */
+  memberships: Pick<Membership, "id" | "name">[];
+  /** Membership del user activo — default para el form. */
+  currentMembershipId: string;
+};
+
+export function QuickAddProvider({
+  children,
+  memberships,
+  currentMembershipId,
+}: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [preset, setPreset] = useState<MovementType | undefined>();
@@ -79,7 +90,6 @@ export function QuickAddProvider({ children }: { children: ReactNode }) {
   }, []);
   const closeSheet = useCallback(() => setSheetOpen(false), []);
 
-  // Atajo N: en mobile abre menu radial, en desktop abre sheet directo
   useKeyboardShortcut("n", () => {
     if (
       typeof window !== "undefined" &&
@@ -97,7 +107,6 @@ export function QuickAddProvider({ children }: { children: ReactNode }) {
     >
       {children}
 
-      {/* Backdrop con blur — solo mobile */}
       <button
         type="button"
         aria-label="Cerrar menú"
@@ -116,7 +125,6 @@ export function QuickAddProvider({ children }: { children: ReactNode }) {
         tabIndex={menuOpen ? 0 : -1}
       />
 
-      {/* Anchor de mini-FABs — fijo a la posición del FAB del bottom-nav */}
       <div
         className="pointer-events-none fixed bottom-[60px] left-1/2 z-[48] -translate-x-1/2 md:hidden"
         aria-hidden={!menuOpen}
@@ -160,6 +168,8 @@ export function QuickAddProvider({ children }: { children: ReactNode }) {
         open={sheetOpen}
         onClose={closeSheet}
         preset={preset}
+        memberships={memberships}
+        defaultMembershipId={currentMembershipId}
       />
     </QuickAddCtx.Provider>
   );

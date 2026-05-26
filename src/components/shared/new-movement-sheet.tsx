@@ -26,14 +26,15 @@ import {
   type NewMovementInput,
 } from "@/lib/schemas/movement";
 import { CATEGORIES_BY_TYPE } from "@/lib/constants/categories";
-import { DUMMY_MEMBERSHIPS } from "@/lib/dummy/entity";
 import { cn } from "@/lib/utils";
-import type { Movement } from "@/lib/db/schema";
+import type { Membership, Movement } from "@/lib/db/schema";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   preset?: Movement["type"];
+  memberships: Pick<Membership, "id" | "name">[];
+  defaultMembershipId: string;
 };
 
 const TYPE_TABS = [
@@ -47,7 +48,10 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function defaultValues(preset?: Movement["type"]): NewMovementInput {
+function defaultValues(
+  preset: Movement["type"] | undefined,
+  membershipId: string,
+): NewMovementInput {
   return {
     type: preset ?? "gasto",
     description: "",
@@ -57,25 +61,31 @@ function defaultValues(preset?: Movement["type"]): NewMovementInput {
     category: "",
     paymentMethod: "credito",
     recurrence: "unico",
-    membershipId: DUMMY_MEMBERSHIPS[0].id,
+    membershipId,
   };
 }
 
-export function NewMovementSheet({ open, onClose, preset }: Props) {
+export function NewMovementSheet({
+  open,
+  onClose,
+  preset,
+  memberships,
+  defaultMembershipId,
+}: Props) {
   const form = useForm<NewMovementInput>({
     resolver: zodResolver(newMovementSchema),
-    defaultValues: defaultValues(preset),
+    defaultValues: defaultValues(preset, defaultMembershipId),
   });
 
   const type = form.watch("type");
   const currency = form.watch("currency");
   const category = form.watch("category");
+  const membershipId = form.watch("membershipId");
 
   useEffect(() => {
-    if (open) form.reset(defaultValues(preset));
-  }, [open, preset, form]);
+    if (open) form.reset(defaultValues(preset, defaultMembershipId));
+  }, [open, preset, defaultMembershipId, form]);
 
-  // Reset categoría si cambia el type (las categorías son distintas por tipo)
   useEffect(() => {
     form.setValue("category", "");
   }, [type, form]);
@@ -83,7 +93,7 @@ export function NewMovementSheet({ open, onClose, preset }: Props) {
   const onSubmit = (data: NewMovementInput) => {
     console.log("[NewMovement] submit (stub):", data);
     toast.success("Movimiento guardado", {
-      description: "Es un stub — conectamos Neon en Sprint 2.",
+      description: "Es un stub — conectamos al Server Action en el próximo paso.",
     });
     onClose();
   };
@@ -105,7 +115,6 @@ export function NewMovementSheet({ open, onClose, preset }: Props) {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4 px-4 pb-6"
         >
-          {/* Type tabs */}
           <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
             {TYPE_TABS.map((t) => {
               const active = type === t.value;
@@ -128,7 +137,6 @@ export function NewMovementSheet({ open, onClose, preset }: Props) {
             })}
           </div>
 
-          {/* Descripción */}
           <div className="space-y-1.5">
             <Label htmlFor="description">¿Qué es?</Label>
             <Input
@@ -144,7 +152,6 @@ export function NewMovementSheet({ open, onClose, preset }: Props) {
             )}
           </div>
 
-          {/* Monto + Moneda */}
           <div className="grid grid-cols-[1fr_100px] gap-2">
             <div className="space-y-1.5">
               <Label htmlFor="amount">Monto</Label>
@@ -182,7 +189,6 @@ export function NewMovementSheet({ open, onClose, preset }: Props) {
             </div>
           </div>
 
-          {/* Fecha + Categoría */}
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1.5">
               <Label htmlFor="date">Fecha</Label>
@@ -216,6 +222,25 @@ export function NewMovementSheet({ open, onClose, preset }: Props) {
                 </p>
               )}
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="member">Quién</Label>
+            <Select
+              value={membershipId}
+              onValueChange={(v) => form.setValue("membershipId", v)}
+            >
+              <SelectTrigger id="member">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {memberships.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Button

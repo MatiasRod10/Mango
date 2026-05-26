@@ -14,20 +14,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MangoLogo } from "./mango-logo";
 import { useQuickAdd } from "./quick-add-provider";
-import { DUMMY_CURRENT_USER, DUMMY_ENTITY } from "@/lib/dummy/entity";
-
-function NewButton() {
-  const { openSheet } = useQuickAdd();
-  return (
-    <Button className="w-full" size="lg" onClick={() => openSheet()}>
-      <Plus className="h-4 w-4" />
-      Nuevo movimiento
-      <kbd className="ml-auto rounded border border-foreground/20 bg-foreground/10 px-1.5 py-0.5 text-[10px] font-medium">
-        N
-      </kbd>
-    </Button>
-  );
-}
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Inicio", icon: Home },
@@ -42,7 +28,27 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Sidebar({ className }: { className?: string }) {
+function NewButton() {
+  const { openSheet } = useQuickAdd();
+  return (
+    <Button className="w-full" size="lg" onClick={() => openSheet()}>
+      <Plus className="h-4 w-4" />
+      Nuevo movimiento
+      <kbd className="ml-auto rounded border border-foreground/20 bg-foreground/10 px-1.5 py-0.5 text-[10px] font-medium">
+        N
+      </kbd>
+    </Button>
+  );
+}
+
+type Props = {
+  className?: string;
+  entityName: string;
+  userName: string;
+  userRole: string;
+};
+
+export function Sidebar({ className, entityName, userName, userRole }: Props) {
   const pathname = usePathname();
 
   return (
@@ -56,9 +62,7 @@ export function Sidebar({ className }: { className?: string }) {
         <Link href="/dashboard" className="inline-block">
           <MangoLogo className="text-3xl" />
         </Link>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {DUMMY_ENTITY.name}
-        </p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{entityName}</p>
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-2">
@@ -96,14 +100,12 @@ export function Sidebar({ className }: { className?: string }) {
               color: "var(--primary-hover)",
             }}
           >
-            {DUMMY_CURRENT_USER.name.charAt(0)}
+            {userName.charAt(0)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">
-              {DUMMY_CURRENT_USER.name}
-            </p>
+            <p className="truncate text-sm font-medium">{userName}</p>
             <p className="truncate text-xs text-muted-foreground capitalize">
-              {DUMMY_CURRENT_USER.role}
+              {userRole}
             </p>
           </div>
         </div>

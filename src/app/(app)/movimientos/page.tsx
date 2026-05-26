@@ -1,17 +1,22 @@
 import { MovementsList } from "@/components/movements/movements-list";
-import { DUMMY_MEMBERSHIPS } from "@/lib/dummy/entity";
-import { movementsForMonth } from "@/lib/dummy/movements";
+import { currentEntityId } from "@/lib/auth/current";
+import { getMembershipsByEntity } from "@/lib/db/queries/entity";
+import { getMovementsForMonth } from "@/lib/db/queries/movements";
 import { getActiveMonth } from "@/lib/preferences/active-month";
 import { getDisplayCurrency } from "@/lib/preferences/display-currency";
 import { formatMonthLabel } from "@/lib/utils/dates";
 
 export default async function MovimientosPage() {
-  const [currency, month] = await Promise.all([
+  const [entityId, currency, month] = await Promise.all([
+    currentEntityId(),
     getDisplayCurrency(),
     getActiveMonth(),
   ]);
-  const movements = movementsForMonth(month);
-  const members = DUMMY_MEMBERSHIPS.map((m) => ({ id: m.id, name: m.name }));
+  const [movements, allMembers] = await Promise.all([
+    getMovementsForMonth(entityId, month),
+    getMembershipsByEntity(entityId),
+  ]);
+  const members = allMembers.map((m) => ({ id: m.id, name: m.name }));
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">

@@ -1,18 +1,20 @@
 import { MonthSelector } from "./month-selector";
 import { UsdRateBadge } from "./usd-rate-badge";
-import { DUMMY_CURRENT_USER } from "@/lib/dummy/entity";
 import { lastNMonths } from "@/lib/utils/dates";
 import { getActiveMonth } from "@/lib/preferences/active-month";
 import { fetchUsdRate } from "@/lib/usd-rate/fetch";
 
+type Props = {
+  /** Inicial mostrada en el avatar mobile (ej: "M" para "Matías"). */
+  userInitial: string;
+  userName: string;
+};
+
 /**
- * Top bar consistente para todas las pantallas del app group.
- * Mobile: avatar + selector mes + USD rate.
- * Desktop: solo mes + USD rate.
- *
- * Async porque hace fetch server-side de la cotización + lee la cookie del mes activo.
+ * Top bar — fetch async del USD rate + active month. El user lo recibe como prop
+ * (lo resuelve el layout via currentMembership).
  */
-export async function TopBar() {
+export async function TopBar({ userInitial, userName }: Props) {
   const [activeMonth, rate] = await Promise.all([
     getActiveMonth(),
     fetchUsdRate("blue"),
@@ -28,9 +30,9 @@ export async function TopBar() {
             background: "color-mix(in oklab, var(--primary) 15%, transparent)",
             color: "var(--primary-hover)",
           }}
-          aria-label={`Avatar de ${DUMMY_CURRENT_USER.name}`}
+          aria-label={`Avatar de ${userName}`}
         >
-          {DUMMY_CURRENT_USER.name.charAt(0)}
+          {userInitial}
         </div>
         <MonthSelector month={activeMonth} options={monthOptions} />
       </div>
