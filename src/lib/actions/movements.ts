@@ -11,6 +11,7 @@ import {
   type NewMovementInput,
 } from "@/lib/schemas/movement";
 import { convertAmount } from "@/lib/utils/usd";
+import { ensureFreshEntityRate } from "@/lib/usd-rate/sync";
 
 export type ActionResult<T = undefined> =
   | { ok: true; data: T }
@@ -47,10 +48,11 @@ export async function insertMovementAction(
   const member = await resolveMember(parsed.data.membershipId, entity.id);
   if (!member) return { ok: false, error: "Miembro inválido" };
 
+  const freshRate = await ensureFreshEntityRate(entity);
   const { amountArs, amountUsd } = convertAmount(
     parsed.data.amount,
     parsed.data.currency,
-    entity.usdRate,
+    freshRate,
   );
 
   const id = createId();
@@ -65,7 +67,7 @@ export async function insertMovementAction(
     description: parsed.data.description,
     amountArs,
     amountUsd,
-    usdRateUsed: entity.usdRate,
+    usdRateUsed: freshRate,
     date: parsed.data.date,
     month,
     category: parsed.data.category,
@@ -107,10 +109,11 @@ export async function updateMovementAction(
 
   // Recalculamos ARS/USD con la cotización actual de la entity.
   // (Si querés conservar la cotización original, usar existing.usdRateUsed en lugar de entity.usdRate.)
+  const freshRate = await ensureFreshEntityRate(entity);
   const { amountArs, amountUsd } = convertAmount(
     parsed.data.amount,
     parsed.data.currency,
-    entity.usdRate,
+    freshRate,
   );
 
   const month = parsed.data.date.slice(0, 7);
@@ -124,7 +127,7 @@ export async function updateMovementAction(
       description: parsed.data.description,
       amountArs,
       amountUsd,
-      usdRateUsed: entity.usdRate,
+      usdRateUsed: freshRate,
       date: parsed.data.date,
       month,
       category: parsed.data.category,

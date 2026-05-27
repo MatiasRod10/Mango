@@ -1,5 +1,7 @@
 import { CompositionDonut } from "@/components/investments/composition-donut";
 import { InvestmentCard } from "@/components/investments/investment-card";
+import { InvestmentsProvider } from "@/components/investments/investments-provider";
+import { NewInvestmentButton } from "@/components/investments/new-investment-button";
 import { PortfolioHero } from "@/components/investments/portfolio-hero";
 import { ProfitBreakdown } from "@/components/investments/profit-breakdown";
 import { currentEntityId } from "@/lib/auth/current";
@@ -39,15 +41,37 @@ export default async function InversionesPage() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
-      <PortfolioHero stats={stats} currency={currency} />
-      <ProfitBreakdown data={breakdown} />
-      <CompositionDonut items={composition} />
-      <div className="space-y-3">
-        {sortedInvestments.map((inv) => (
-          <InvestmentCard key={inv.id} investment={inv} />
-        ))}
+    <InvestmentsProvider>
+      <div className="mx-auto max-w-2xl space-y-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Inversiones
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {sortedInvestments.length}{" "}
+              {sortedInvestments.length === 1
+                ? "instrumento activo"
+                : "instrumentos activos"}
+            </p>
+          </div>
+          <NewInvestmentButton />
+        </div>
+        <PortfolioHero stats={stats} currency={currency} />
+        <ProfitBreakdown data={breakdown} />
+        <CompositionDonut items={composition} />
+        <div className="space-y-3">
+          {sortedInvestments.map((inv) => (
+            <InvestmentCard key={inv.id} investment={inv} />
+          ))}
+          {sortedInvestments.length === 0 && (
+            <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+              Aún no cargaste inversiones. Tocá <strong>Nueva</strong> arriba a
+              la derecha para empezar.
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </InvestmentsProvider>
   );
 }
