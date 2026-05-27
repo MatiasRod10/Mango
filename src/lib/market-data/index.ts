@@ -1,23 +1,19 @@
 import type { Investment } from "@/lib/db/schema";
 import { fetchCoinPrice } from "./coingecko";
-import { fetchStockPrice } from "./yahoo-finance";
+import { fetchTwelveDataQuote } from "./twelve-data";
 
 /**
  * Dispatcher de pricing por asset_class. Devuelve nuevos valores ARS+USD
  * para guardar en DB, o un motivo de skip si no se puede actualizar.
  *
- * Soportado automáticamente:
- *   - cripto       → CoinGecko (necesita ticker = slug)
- *   - acciones     → Yahoo Finance (ticker normal)
- *   - cedear       → Yahoo Finance (con o sin .BA — agregamos .BA si no está)
+ * Proveedores:
+ *   - cripto       → CoinGecko (sin API key)
+ *   - acciones     → Twelve Data (necesita TWELVE_DATA_API_KEY)
+ *   - cedear       → Twelve Data con exchange=BCBA
  *   - dolar        → Recalcula ARS con la cotización fresca de la entity
  *
- * Manual (devolvemos skip):
- *   - plazo_fijo   → cálculo de intereses corridos requiere TNA + vencimiento (faltan campos)
- *   - bonos        → no hay API gratis estable
- *   - fondo_comun  → idem
- *   - inmueble     → siempre manual
- *   - otro         → manual
+ * Manual (devolvemos skip con motivo):
+ *   - plazo_fijo, bonos, fondo_comun, inmueble, otro
  */
 
 export type RefreshResult =
@@ -49,20 +45,16 @@ export async function refreshPriceForInvestment(
       };
     }
 
-    case "acciones":
-    case "cedear": {
+    case "acciones": {
       if (!inv.ticker) return { ok: false, reason: "Falta ticker" };
       if (!inv.quantity) return { ok: false, reason: "Falta cantidad" };
-      // CEDEARs típicamente terminan en .BA. Si no está, lo agregamos.
-      const symbol =
-        inv.assetClass === "cedear" && !inv.ticker.toUpperCase().endsWith(".BA")
-          ? `${inv.ticker}.BA`
-          : inv.ticker;
-      const result = await fetchStockPrice(symbol);
+      const result = await fetchTwelveDataQuote(inv.ticker);
       if (!result)
-        return { ok: false, reason: `Yahoo Finance no respondió para ${symbol}` };
+        return {
+          ok: false,
+          reason: `Twelve Data no respondió (¿API key configurada?)`,
+        };
       const qty = parseFloat(inv.quantity);
-
       if (result.currency === "USD") {
         const newUsd = qty * result.price;
         const newArs = newUsd * usdRate;
@@ -70,9 +62,23 @@ export async function refreshPriceForInvestment(
           ok: true,
           newValueUsd: newUsd.toFixed(2),
           newValueArs: newArs.toFixed(2),
-          source: "yahoo-finance",
+          source: "twelve-data",
         };
       }
+      return { ok: false, reason: `Moneda no soportada: ${result.currency}` };
+    }
+
+    case "cedear": {
+      if (!inv.ticker) return { ok: false, reason: "Falta ticker" };
+      if (!inv.quantity) return { ok: false, reason: "Falta cantidad" };
+      // CEDEARs en ByMA — Twelve Data los tiene en exchange BCBA.
+      const result = await fetchTwelveDataQuote(inv.ticker, "BCBA");
+      if (!result)
+        return {
+          ok: false,
+          reason: `Twelve Data no respondió para ${inv.ticker}:BCBA`,
+        };
+      const qty = parseFloat(inv.quantity);
       if (result.currency === "ARS") {
         const newArs = qty * result.price;
         const newUsd = usdRate > 0 ? newArs / usdRate : 0;
@@ -80,7 +86,18 @@ export async function refreshPriceForInvestment(
           ok: true,
           newValueUsd: newUsd.toFixed(2),
           newValueArs: newArs.toFixed(2),
-          source: "yahoo-finance",
+          source: "twelve-data (BCBA)",
+        };
+      }
+      if (result.currency === "USD") {
+        // CEDEAR cotizando en USD (raro pero por las dudas)
+        const newUsd = qty * result.price;
+        const newArs = newUsd * usdRate;
+        return {
+          ok: true,
+          newValueUsd: newUsd.toFixed(2),
+          newValueArs: newArs.toFixed(2),
+          source: "twelve-data (BCBA)",
         };
       }
       return { ok: false, reason: `Moneda no soportada: ${result.currency}` };
