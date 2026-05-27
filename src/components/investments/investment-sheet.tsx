@@ -243,9 +243,15 @@ export function InvestmentSheet({ open, onClose, editing }: Props) {
                   Slug de CoinGecko (`bitcoin`, `ethereum`, `solana`)
                 </p>
               )}
-              {(assetClass === "acciones" || assetClass === "cedear") && (
+              {assetClass === "acciones" && (
                 <p className="text-[10px] text-muted-foreground">
-                  Símbolo Yahoo Finance{assetClass === "cedear" && " — el .BA lo agregamos solos"}
+                  Símbolo Twelve Data — US tickers (AAPL, MSFT, SPY...)
+                </p>
+              )}
+              {assetClass === "cedear" && (
+                <p className="text-[10px] text-muted-foreground">
+                  Ticker del subyacente US — aplicamos el ratio CEDEAR (SPY,
+                  QQQ, AAPL, MELI...)
                 </p>
               )}
             </div>
