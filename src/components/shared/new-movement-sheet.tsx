@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CategoryCombobox } from "@/components/forms/category-combobox";
 import {
   newMovementSchema,
   type NewMovementInput,
@@ -269,22 +270,16 @@ export function NewMovementSheet({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="category">Categoría</Label>
-              <Select
+              <CategoryCombobox
+                id="category"
                 value={category}
-                onValueChange={(v) => form.setValue("category", v)}
+                onChange={(v) =>
+                  form.setValue("category", v, { shouldValidate: true })
+                }
+                categories={CATEGORIES_BY_TYPE[type]}
+                placeholder="Elegí o escribí..."
                 disabled={isPending}
-              >
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Elegí..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES_BY_TYPE[type].map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
               {form.formState.errors.category && (
                 <p className="text-xs text-[var(--destructive)]">
                   {form.formState.errors.category.message}
