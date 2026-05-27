@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { entities, memberships } from "@/lib/db/schema";
 import type { Entity, Membership } from "@/lib/db/schema";
+import { hasRole, type MemberRole } from "@/lib/auth/roles";
 import { stackServerApp } from "@/stack/server";
 
 /**
@@ -110,4 +111,17 @@ export async function currentEntityId(): Promise<string> {
     redirect(SIGN_IN_PATH);
   }
   return m.entityId;
+}
+
+/**
+ * Para acciones que requieren un rol mínimo (ej: editar entity → owner).
+ * Devuelve el membership si cumple el rol, sino tira error.
+ */
+export async function requireRole(min: MemberRole): Promise<Membership> {
+  const m = await currentMembership();
+  if (!m) redirect(SIGN_IN_PATH);
+  if (!hasRole(m.role as MemberRole, min)) {
+    throw new Error(`Permisos insuficientes: se requiere rol ${min}`);
+  }
+  return m;
 }
