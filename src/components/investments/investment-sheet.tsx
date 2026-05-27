@@ -222,14 +222,32 @@ export function InvestmentSheet({ open, onClose, editing }: Props) {
 
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1.5">
-              <Label htmlFor="ticker">Ticker (opcional)</Label>
+              <Label htmlFor="ticker">Ticker</Label>
               <Input
                 id="ticker"
                 autoComplete="off"
-                placeholder="AAPL"
+                placeholder={
+                  assetClass === "cripto"
+                    ? "bitcoin"
+                    : assetClass === "cedear"
+                      ? "AAPL"
+                      : assetClass === "acciones"
+                        ? "AAPL"
+                        : "Opcional"
+                }
                 {...form.register("ticker")}
                 disabled={isPending}
               />
+              {assetClass === "cripto" && (
+                <p className="text-[10px] text-muted-foreground">
+                  Slug de CoinGecko (`bitcoin`, `ethereum`, `solana`)
+                </p>
+              )}
+              {(assetClass === "acciones" || assetClass === "cedear") && (
+                <p className="text-[10px] text-muted-foreground">
+                  Símbolo Yahoo Finance{assetClass === "cedear" && " — el .BA lo agregamos solos"}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="broker">Broker / cuenta</Label>

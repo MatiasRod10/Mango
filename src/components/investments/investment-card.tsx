@@ -6,6 +6,7 @@ import {
   MoreVertical,
   Pencil,
   RefreshCw,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -32,6 +33,7 @@ import {
   deleteInvestmentAction,
   markInvestmentSoldAction,
 } from "@/lib/actions/investments";
+import { refreshInvestmentPriceAction } from "@/lib/actions/market-data";
 import type { Investment } from "@/lib/db/schema";
 import {
   ASSET_CLASS_EMOJI,
@@ -109,6 +111,27 @@ export function InvestmentCard({ investment: inv }: Props) {
     });
   };
 
+  const handleAutoRefresh = () => {
+    startTransition(async () => {
+      const result = await refreshInvestmentPriceAction(inv.id);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      if (result.data.refreshed) {
+        toast.success(`${inv.name} actualizado vía ${result.data.source}`);
+      } else {
+        toast.info("No pude actualizar automático", {
+          description: result.data.reason,
+        });
+      }
+    });
+  };
+
+  const autoSupported = ["cripto", "acciones", "cedear", "dolar"].includes(
+    inv.assetClass,
+  );
+
   return (
     <>
       <div className="rounded-2xl border border-border bg-card p-4">
@@ -155,10 +178,19 @@ export function InvestmentCard({ investment: inv }: Props) {
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-52">
+                {autoSupported && (
+                  <DropdownMenuItem
+                    onClick={handleAutoRefresh}
+                    disabled={isPending}
+                  >
+                    <Sparkles className="mr-2 h-4 w-4 text-[var(--primary-hover)]" />
+                    Auto-actualizar
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => openUpdateValue(inv)}>
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  Actualizar valor
+                  Actualizar manual
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => openEdit(inv)}>
                   <Pencil className="mr-2 h-4 w-4" />

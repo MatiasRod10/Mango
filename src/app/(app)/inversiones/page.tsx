@@ -4,6 +4,7 @@ import { InvestmentsProvider } from "@/components/investments/investments-provid
 import { NewInvestmentButton } from "@/components/investments/new-investment-button";
 import { PortfolioHero } from "@/components/investments/portfolio-hero";
 import { ProfitBreakdown } from "@/components/investments/profit-breakdown";
+import { RefreshAllButton } from "@/components/investments/refresh-all-button";
 import { currentEntityId } from "@/lib/auth/current";
 import { getActiveInvestmentsByEntity } from "@/lib/db/queries/investments";
 import {
@@ -55,7 +56,10 @@ export default async function InversionesPage() {
                 : "instrumentos activos"}
             </p>
           </div>
-          <NewInvestmentButton />
+          <div className="flex gap-2">
+            <RefreshAllButton />
+            <NewInvestmentButton />
+          </div>
         </div>
         <PortfolioHero stats={stats} currency={currency} />
         <ProfitBreakdown data={breakdown} />
