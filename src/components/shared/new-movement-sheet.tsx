@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -26,6 +26,10 @@ import {
   type NewMovementInput,
 } from "@/lib/schemas/movement";
 import { CATEGORIES_BY_TYPE } from "@/lib/constants/categories";
+import {
+  insertMovementAction,
+  updateMovementAction,
+} from "@/lib/actions/movements";
 import { cn } from "@/lib/utils";
 import type { Membership, Movement } from "@/lib/db/schema";
 
@@ -33,6 +37,8 @@ type Props = {
   open: boolean;
   onClose: () => void;
   preset?: Movement["type"];
+  /** Si está presente, modo edición. */
+  editing?: Movement;
   memberships: Pick<Membership, "id" | "name">[];
   defaultMembershipId: string;
 };
@@ -48,7 +54,7 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function defaultValues(
+function defaultValuesCreate(
   preset: Movement["type"] | undefined,
   membershipId: string,
 ): NewMovementInput {
@@ -65,16 +71,42 @@ function defaultValues(
   };
 }
 
+function defaultValuesEdit(
+  movement: Movement,
+  fallbackMembershipId: string,
+): NewMovementInput {
+  return {
+    type: movement.type,
+    description: movement.description,
+    amount: parseFloat(movement.amountArs),
+    currency: "ARS",
+    date: movement.date,
+    category: movement.category,
+    subcategory: movement.subcategory ?? undefined,
+    paymentMethod: movement.paymentMethod,
+    priority: movement.priority ?? undefined,
+    recurrence: movement.recurrence,
+    notes: movement.notes ?? undefined,
+    membershipId: movement.membershipId ?? fallbackMembershipId,
+  };
+}
+
 export function NewMovementSheet({
   open,
   onClose,
   preset,
+  editing,
   memberships,
   defaultMembershipId,
 }: Props) {
+  const isEdit = Boolean(editing);
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<NewMovementInput>({
     resolver: zodResolver(newMovementSchema),
-    defaultValues: defaultValues(preset, defaultMembershipId),
+    defaultValues: editing
+      ? defaultValuesEdit(editing, defaultMembershipId)
+      : defaultValuesCreate(preset, defaultMembershipId),
   });
 
   const type = form.watch("type");
@@ -83,31 +115,58 @@ export function NewMovementSheet({
   const membershipId = form.watch("membershipId");
 
   useEffect(() => {
-    if (open) form.reset(defaultValues(preset, defaultMembershipId));
-  }, [open, preset, defaultMembershipId, form]);
+    if (open) {
+      form.reset(
+        editing
+          ? defaultValuesEdit(editing, defaultMembershipId)
+          : defaultValuesCreate(preset, defaultMembershipId),
+      );
+    }
+  }, [open, preset, editing, defaultMembershipId, form]);
 
+  // Reset categoría solo si cambia el type Y no estamos en edit (en edit conservamos la categoría)
   useEffect(() => {
-    form.setValue("category", "");
-  }, [type, form]);
+    if (!editing) form.setValue("category", "");
+  }, [type, editing, form]);
 
   const onSubmit = (data: NewMovementInput) => {
-    console.log("[NewMovement] submit (stub):", data);
-    toast.success("Movimiento guardado", {
-      description: "Es un stub — conectamos al Server Action en el próximo paso.",
+    startTransition(async () => {
+      const result = editing
+        ? await updateMovementAction(editing.id, data)
+        : await insertMovementAction(data);
+
+      if (result.ok) {
+        toast.success(
+          editing ? "Movimiento actualizado" : "Movimiento guardado",
+        );
+        onClose();
+      } else {
+        toast.error(result.error);
+      }
     });
-    onClose();
   };
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
+    <Sheet open={open} onOpenChange={(o) => !o && !isPending && onClose()}>
       <SheetContent
         side="bottom"
         className="max-h-[92vh] overflow-y-auto rounded-t-2xl border-t border-border"
       >
         <SheetHeader className="text-left">
-          <SheetTitle>Nuevo movimiento</SheetTitle>
+          <SheetTitle>
+            {isEdit ? "Editar movimiento" : "Nuevo movimiento"}
+          </SheetTitle>
           <SheetDescription>
-            Atajo: <kbd className="rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium">N</kbd>
+            {isEdit ? (
+              <>Cambios se guardan en Neon al confirmar.</>
+            ) : (
+              <>
+                Atajo:{" "}
+                <kbd className="rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] font-medium">
+                  N
+                </kbd>
+              </>
+            )}
           </SheetDescription>
         </SheetHeader>
 
@@ -130,6 +189,7 @@ export function NewMovementSheet({
                       : "bg-secondary text-muted-foreground hover:text-foreground",
                   )}
                   style={active ? { background: t.color } : undefined}
+                  disabled={isPending}
                 >
                   {t.label}
                 </button>
@@ -144,6 +204,7 @@ export function NewMovementSheet({
               autoComplete="off"
               {...form.register("description")}
               placeholder="Coto, Sueldo, Plazo fijo..."
+              disabled={isPending}
             />
             {form.formState.errors.description && (
               <p className="text-xs text-[var(--destructive)]">
@@ -163,6 +224,7 @@ export function NewMovementSheet({
                 {...form.register("amount", { valueAsNumber: true })}
                 placeholder="0"
                 className="tabular-nums"
+                disabled={isPending}
               />
               {form.formState.errors.amount && (
                 <p className="text-xs text-[var(--destructive)]">
@@ -177,6 +239,7 @@ export function NewMovementSheet({
                 onValueChange={(v) =>
                   form.setValue("currency", v as "ARS" | "USD")
                 }
+                disabled={isPending}
               >
                 <SelectTrigger id="currency">
                   <SelectValue />
@@ -192,7 +255,12 @@ export function NewMovementSheet({
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1.5">
               <Label htmlFor="date">Fecha</Label>
-              <Input id="date" type="date" {...form.register("date")} />
+              <Input
+                id="date"
+                type="date"
+                {...form.register("date")}
+                disabled={isPending}
+              />
               {form.formState.errors.date && (
                 <p className="text-xs text-[var(--destructive)]">
                   {form.formState.errors.date.message}
@@ -204,6 +272,7 @@ export function NewMovementSheet({
               <Select
                 value={category}
                 onValueChange={(v) => form.setValue("category", v)}
+                disabled={isPending}
               >
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Elegí..." />
@@ -229,6 +298,7 @@ export function NewMovementSheet({
             <Select
               value={membershipId}
               onValueChange={(v) => form.setValue("membershipId", v)}
+              disabled={isPending}
             >
               <SelectTrigger id="member">
                 <SelectValue />
@@ -247,9 +317,13 @@ export function NewMovementSheet({
             type="submit"
             className="w-full"
             size="lg"
-            disabled={form.formState.isSubmitting}
+            disabled={isPending}
           >
-            {form.formState.isSubmitting ? "Guardando..." : "Guardar"}
+            {isPending
+              ? "Guardando..."
+              : isEdit
+                ? "Guardar cambios"
+                : "Guardar"}
           </Button>
         </form>
       </SheetContent>

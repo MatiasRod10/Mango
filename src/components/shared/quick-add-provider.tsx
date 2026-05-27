@@ -17,15 +17,21 @@ import type { LucideIcon } from "lucide-react";
 import { useKeyboardShortcut } from "@/hooks/use-keyboard-shortcut";
 import { NewMovementSheet } from "./new-movement-sheet";
 import { cn } from "@/lib/utils";
-import type { Movement, Membership } from "@/lib/db/schema";
+import type { Membership, Movement } from "@/lib/db/schema";
 
 type MovementType = Movement["type"];
+
+type SheetState =
+  | { mode: "closed" }
+  | { mode: "create"; preset?: MovementType }
+  | { mode: "edit"; movement: Movement };
 
 type Ctx = {
   menuOpen: boolean;
   openMenu: () => void;
   closeMenu: () => void;
   openSheet: (preset?: MovementType) => void;
+  openEditSheet: (movement: Movement) => void;
   closeSheet: () => void;
 };
 
@@ -66,9 +72,7 @@ function angleToOffset(angleDeg: number, radius: number) {
 
 type Props = {
   children: ReactNode;
-  /** Memberships de la entidad para popular el "Quién" del form. */
   memberships: Pick<Membership, "id" | "name">[];
-  /** Membership del user activo — default para el form. */
   currentMembershipId: string;
 };
 
@@ -78,17 +82,19 @@ export function QuickAddProvider({
   currentMembershipId,
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [preset, setPreset] = useState<MovementType | undefined>();
+  const [sheet, setSheet] = useState<SheetState>({ mode: "closed" });
 
   const openMenu = useCallback(() => setMenuOpen(true), []);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const openSheet = useCallback((p?: MovementType) => {
     setMenuOpen(false);
-    setPreset(p);
-    setSheetOpen(true);
+    setSheet({ mode: "create", preset: p });
   }, []);
-  const closeSheet = useCallback(() => setSheetOpen(false), []);
+  const openEditSheet = useCallback((m: Movement) => {
+    setMenuOpen(false);
+    setSheet({ mode: "edit", movement: m });
+  }, []);
+  const closeSheet = useCallback(() => setSheet({ mode: "closed" }), []);
 
   useKeyboardShortcut("n", () => {
     if (
@@ -103,7 +109,14 @@ export function QuickAddProvider({
 
   return (
     <QuickAddCtx.Provider
-      value={{ menuOpen, openMenu, closeMenu, openSheet, closeSheet }}
+      value={{
+        menuOpen,
+        openMenu,
+        closeMenu,
+        openSheet,
+        openEditSheet,
+        closeSheet,
+      }}
     >
       {children}
 
@@ -165,9 +178,10 @@ export function QuickAddProvider({
       </div>
 
       <NewMovementSheet
-        open={sheetOpen}
+        open={sheet.mode !== "closed"}
         onClose={closeSheet}
-        preset={preset}
+        preset={sheet.mode === "create" ? sheet.preset : undefined}
+        editing={sheet.mode === "edit" ? sheet.movement : undefined}
         memberships={memberships}
         defaultMembershipId={currentMembershipId}
       />

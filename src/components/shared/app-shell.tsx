@@ -7,17 +7,15 @@ type Props = {
   entityName: string;
   userName: string;
   userRole: string;
+  userEmail?: string;
 };
 
-/**
- * Shell del app group. Sidebar en desktop, bottom-nav en mobile.
- * Recibe la info de entity + user activos como props (el layout async las fetchea).
- */
 export function AppShell({
   children,
   entityName,
   userName,
   userRole,
+  userEmail,
 }: Props) {
   return (
     <div className="flex min-h-screen">
@@ -26,6 +24,7 @@ export function AppShell({
         entityName={entityName}
         userName={userName}
         userRole={userRole}
+        userEmail={userEmail}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar userInitial={userName.charAt(0)} userName={userName} />

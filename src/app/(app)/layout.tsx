@@ -4,6 +4,7 @@ import { QuickAddProvider } from "@/components/shared/quick-add-provider";
 import {
   currentEntity,
   currentMembership,
+  currentUser,
   requireUser,
 } from "@/lib/auth/current";
 import { getMembershipsByEntity } from "@/lib/db/queries/entity";
@@ -13,17 +14,15 @@ export default async function AppGroupLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Gate: si no hay user, redirect a sign-in (lo hace requireUser).
   await requireUser();
 
-  const [entity, membership] = await Promise.all([
+  const [user, entity, membership] = await Promise.all([
+    currentUser(),
     currentEntity(),
     currentMembership(),
   ]);
 
   if (!membership || !entity) {
-    // Tiene user pero no membership/entity. TODO: pantalla de onboarding.
-    // Por ahora, lo mandamos a sign-in para que vuelva a empezar.
     redirect("/handler/sign-in");
   }
 
@@ -38,6 +37,7 @@ export default async function AppGroupLayout({
         entityName={entity.name}
         userName={membership.name}
         userRole={membership.role}
+        userEmail={user?.primaryEmail ?? undefined}
       >
         {children}
       </AppShell>
