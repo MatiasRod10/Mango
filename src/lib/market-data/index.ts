@@ -49,11 +49,7 @@ export async function refreshPriceForInvestment(
       if (!inv.ticker) return { ok: false, reason: "Falta ticker" };
       if (!inv.quantity) return { ok: false, reason: "Falta cantidad" };
       const result = await fetchTwelveDataQuote(inv.ticker);
-      if (!result)
-        return {
-          ok: false,
-          reason: `Twelve Data no respondió (¿API key configurada?)`,
-        };
+      if (!result.ok) return { ok: false, reason: result.reason };
       const qty = parseFloat(inv.quantity);
       if (result.currency === "USD") {
         const newUsd = qty * result.price;
@@ -73,11 +69,7 @@ export async function refreshPriceForInvestment(
       if (!inv.quantity) return { ok: false, reason: "Falta cantidad" };
       // CEDEARs en ByMA — Twelve Data los tiene en exchange BCBA.
       const result = await fetchTwelveDataQuote(inv.ticker, "BCBA");
-      if (!result)
-        return {
-          ok: false,
-          reason: `Twelve Data no respondió para ${inv.ticker}:BCBA`,
-        };
+      if (!result.ok) return { ok: false, reason: result.reason };
       const qty = parseFloat(inv.quantity);
       if (result.currency === "ARS") {
         const newArs = qty * result.price;

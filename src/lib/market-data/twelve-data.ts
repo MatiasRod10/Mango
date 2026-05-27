@@ -15,10 +15,9 @@
 
 const ENDPOINT = "https://api.twelvedata.com/quote";
 
-export type TwelveQuote = {
-  price: number;
-  currency: string; // "USD" o "ARS"
-};
+export type TwelveQuoteResult =
+  | { ok: true; price: number; currency: string }
+  | { ok: false; reason: string };
 
 type TwelveDataResponse =
   | {
@@ -39,17 +38,17 @@ type TwelveDataResponse =
 export async function fetchTwelveDataQuote(
   symbol: string,
   exchange?: string,
-): Promise<TwelveQuote | null> {
+): Promise<TwelveQuoteResult> {
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey) {
-    console.warn(
-      "[twelve-data] TWELVE_DATA_API_KEY no está configurado — el auto-pricing de acciones/CEDEARs va a fallar.",
-    );
-    return null;
+    return {
+      ok: false,
+      reason: "Falta TWELVE_DATA_API_KEY en env vars de Vercel",
+    };
   }
 
   const cleaned = symbol.toUpperCase().trim();
-  if (!cleaned) return null;
+  if (!cleaned) return { ok: false, reason: "Ticker vacío" };
 
   const params = new URLSearchParams({
     symbol: cleaned,
@@ -62,22 +61,45 @@ export async function fetchTwelveDataQuote(
       next: { revalidate: 300, tags: ["twelve-data"] },
       signal: AbortSignal.timeout(7000),
     });
-    if (!res.ok) return null;
+
+    if (!res.ok) {
+      return {
+        ok: false,
+        reason: `Twelve Data HTTP ${res.status}`,
+      };
+    }
 
     const data = (await res.json()) as TwelveDataResponse;
 
-    // Errores de Twelve Data devuelven { code, message }
     if ("code" in data && data.code) {
-      console.warn(`[twelve-data] ${symbol}${exchange ? ":" + exchange : ""}: ${data.message}`);
-      return null;
+      // Mensajes típicos: "Symbol not found", "You have run out of API credits",
+      // "Plan upgrade required", "API key invalid"
+      return {
+        ok: false,
+        reason: `Twelve Data: ${data.message}`,
+      };
     }
 
-    if (!("close" in data) || !data.close || !data.currency) return null;
-    const price = parseFloat(data.close);
-    if (!Number.isFinite(price)) return null;
+    if (!("close" in data) || !data.close || !data.currency) {
+      return {
+        ok: false,
+        reason: "Twelve Data devolvió respuesta sin precio/moneda",
+      };
+    }
 
-    return { price, currency: data.currency };
-  } catch {
-    return null;
+    const price = parseFloat(data.close);
+    if (!Number.isFinite(price)) {
+      return {
+        ok: false,
+        reason: `Precio no parseable: ${data.close}`,
+      };
+    }
+
+    return { ok: true, price, currency: data.currency };
+  } catch (err) {
+    return {
+      ok: false,
+      reason: `Network error: ${err instanceof Error ? err.message : "desconocido"}`,
+    };
   }
 }
