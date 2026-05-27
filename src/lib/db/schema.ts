@@ -353,6 +353,11 @@ export const investments = pgTable(
     averagePriceArs: numeric("average_price_ars", { precision: 18, scale: 4 }),
     currentPriceArs: numeric("current_price_ars", { precision: 18, scale: 4 }),
 
+    /** Ratio CEDEAR override (cuántos CEDEARs = 1 acción US). Null → usar la
+     * tabla local en cedear-ratios.ts. Útil cuando el ratio oficial cambia
+     * y nuestra tabla está desactualizada, o cuando el broker informa otro. */
+    cedearRatio: numeric("cedear_ratio", { precision: 10, scale: 4 }),
+
     status: investmentStatusEnum("status").notNull().default("active"),
     risk: riskLevelEnum("risk").notNull().default("medium"),
     notes: text("notes"),

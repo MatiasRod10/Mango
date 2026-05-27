@@ -97,6 +97,7 @@ function defaultsEdit(inv: Investment): NewInvestmentInput {
     ),
     currentValueCurrency: showInUsd ? "USD" : "ARS",
     quantity: inv.quantity ? parseFloat(inv.quantity) : undefined,
+    cedearRatio: inv.cedearRatio ? parseFloat(inv.cedearRatio) : undefined,
     risk: inv.risk,
     notes: inv.notes ?? undefined,
   };
@@ -117,6 +118,7 @@ export function InvestmentSheet({ open, onClose, editing }: Props) {
   const risk = form.watch("risk");
   const ticker = form.watch("ticker") ?? "";
   const quantity = form.watch("quantity");
+  const cedearRatio = form.watch("cedearRatio");
 
   useEffect(() => {
     if (open) {
@@ -372,6 +374,7 @@ export function InvestmentSheet({ open, onClose, editing }: Props) {
               assetClass={assetClass}
               ticker={ticker}
               quantity={quantity}
+              cedearRatioOverride={cedearRatio}
               preferredCurrency={currentValueCurrency}
               onUseValue={(value, currency) => {
                 form.setValue("currentValue", value, { shouldValidate: true });
@@ -379,6 +382,30 @@ export function InvestmentSheet({ open, onClose, editing }: Props) {
               }}
             />
           </div>
+
+          {assetClass === "cedear" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="cedearRatio">
+                Ratio CEDEAR (opcional)
+              </Label>
+              <Input
+                id="cedearRatio"
+                type="number"
+                step="0.0001"
+                inputMode="decimal"
+                placeholder="Si lo sabés, ponelo (ej. 15 para QQQ)"
+                className="tabular-nums"
+                {...form.register("cedearRatio", { valueAsNumber: true })}
+                disabled={isPending}
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Cuántos CEDEARs argentinos equivalen a 1 acción US. Si lo
+                dejás vacío, uso la tabla oficial — pero los ratios cambian
+                con el tiempo. Si tu broker te muestra otro valor, ponelo acá
+                para mejor precisión.
+              </p>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label htmlFor="notes">Notas (opcional)</Label>

@@ -41,6 +41,12 @@ export const newInvestmentSchema = z.object({
   currentValueCurrency: z.enum(["ARS", "USD"]),
 
   quantity: z.number().optional(),
+  /** Ratio CEDEAR override (cuántos CEDEARs argentinos = 1 acción US). Solo
+   * para assetClass="cedear". Si está vacío, usamos la tabla oficial. */
+  cedearRatio: z
+    .number()
+    .refine((n) => Number.isFinite(n) && n > 0, "Tiene que ser mayor a 0")
+    .optional(),
   risk: riskLevelSchema,
   notes: z.string().trim().max(500).optional(),
 });

@@ -76,6 +76,10 @@ export async function insertInvestmentAction(
     quantity: parsed.data.quantity?.toString() ?? null,
     averagePriceArs: null,
     currentPriceArs: null,
+    cedearRatio:
+      parsed.data.assetClass === "cedear" && parsed.data.cedearRatio
+        ? parsed.data.cedearRatio.toString()
+        : null,
     status: "active",
     risk: parsed.data.risk,
     notes: parsed.data.notes ?? null,
@@ -136,6 +140,10 @@ export async function updateInvestmentAction(
       currentValueUsd,
       currentUsdSellRate: currentRate,
       quantity: parsed.data.quantity?.toString() ?? null,
+      cedearRatio:
+        parsed.data.assetClass === "cedear" && parsed.data.cedearRatio
+          ? parsed.data.cedearRatio.toString()
+          : null,
       risk: parsed.data.risk,
       notes: parsed.data.notes ?? null,
     })

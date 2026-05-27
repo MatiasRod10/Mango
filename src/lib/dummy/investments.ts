@@ -26,6 +26,7 @@ export const DUMMY_INVESTMENTS: Investment[] = [
     quantity: "0.05000000",
     averagePriceArs: "70200000.0000", // 65000 USD * 1080 — precio promedio en ARS al comprar
     currentPriceArs: "118465000.0000", // 95000 USD * 1247
+    cedearRatio: null,
     status: "active",
     risk: "high",
     notes: "0,05 BTC comprado en enero",
@@ -51,6 +52,7 @@ export const DUMMY_INVESTMENTS: Investment[] = [
     quantity: "10.00000000",
     averagePriceArs: "194400.0000", // 180 USD * 1080
     currentPriceArs: "268105.0000", // 215 USD * 1247
+    cedearRatio: null,
     status: "active",
     risk: "low",
     notes: "10 CEDEARs",
@@ -76,6 +78,7 @@ export const DUMMY_INVESTMENTS: Investment[] = [
     quantity: null,
     averagePriceArs: null,
     currentPriceArs: null,
+    cedearRatio: null,
     status: "active",
     risk: "medium",
     notes: "Bono soberano hard-dollar",
@@ -101,6 +104,7 @@ export const DUMMY_INVESTMENTS: Investment[] = [
     quantity: null,
     averagePriceArs: null,
     currentPriceArs: null,
+    cedearRatio: null,
     status: "active",
     risk: "low",
     notes: "TNA 110% · vence 18/07/2026",
@@ -126,6 +130,7 @@ export const DUMMY_INVESTMENTS: Investment[] = [
     quantity: "8000.00000000",
     averagePriceArs: "1180.0000",
     currentPriceArs: "1247.0000",
+    cedearRatio: null,
     status: "active",
     risk: "low",
     notes: "8.000 USD cash — el profit es solo por movimiento del dólar",
@@ -151,6 +156,7 @@ export const DUMMY_INVESTMENTS: Investment[] = [
     quantity: null,
     averagePriceArs: null,
     currentPriceArs: null,
+    cedearRatio: null,
     status: "active",
     risk: "low",
     notes: "Valuación actualizada manualmente al 01/04/2026",

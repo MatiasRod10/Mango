@@ -14,6 +14,8 @@ type Props = {
   assetClass: AssetClass;
   ticker: string;
   quantity: number | undefined;
+  /** Override del ratio CEDEAR (opcional). Solo aplica si assetClass = "cedear". */
+  cedearRatioOverride?: number;
   onUseValue: (value: number, currency: "ARS" | "USD") => void;
   /** Moneda preferida para el botón "Usar este valor". */
   preferredCurrency: "ARS" | "USD";
@@ -37,6 +39,7 @@ export function MarketDataPreview({
   assetClass,
   ticker,
   quantity,
+  cedearRatioOverride,
   onUseValue,
   preferredCurrency,
 }: Props) {
@@ -59,6 +62,7 @@ export function MarketDataPreview({
         assetClass,
         ticker: ticker.trim(),
         quantity,
+        cedearRatioOverride,
       });
       if (cancelled) return;
       if (result.ok) {
@@ -78,14 +82,18 @@ export function MarketDataPreview({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [assetClass, ticker, quantity]);
+  }, [assetClass, ticker, quantity, cedearRatioOverride]);
 
   // No mostrar para asset classes no soportados (plazo_fijo, bonos, inmueble...)
   if (!SUPPORTED.includes(assetClass)) return null;
   if (!ticker.trim()) return null;
 
-  const ratioForCedear =
-    assetClass === "cedear" ? getCedearRatio(ticker) : null;
+  const effectiveRatio =
+    assetClass === "cedear"
+      ? (cedearRatioOverride ?? getCedearRatio(ticker))
+      : null;
+  const isOverride =
+    assetClass === "cedear" && cedearRatioOverride !== undefined;
 
   return (
     <div
@@ -101,15 +109,16 @@ export function MarketDataPreview({
         <div className="flex-1 space-y-1.5">
           {assetClass === "cedear" && (
             <p className="text-muted-foreground">
-              {ratioForCedear ? (
+              {effectiveRatio ? (
                 <>
-                  Ratio CEDEAR <strong className="text-foreground">1:{ratioForCedear}</strong>
-                  {" "}(1 acción US = {ratioForCedear} CEDEARs)
+                  Ratio CEDEAR{" "}
+                  <strong className="text-foreground">1:{effectiveRatio}</strong>
+                  {" "}({isOverride ? "manual" : "tabla oficial"})
                 </>
               ) : (
                 <span className="text-[var(--warning)]">
-                  Ratio CEDEAR no conocido para este ticker — el auto-pricing
-                  no va a funcionar. Si lo cargás manual, sigue todo OK.
+                  Ratio CEDEAR no conocido — ponelo manualmente abajo o usá
+                  "Actualizar manual" después.
                 </span>
               )}
             </p>

@@ -77,13 +77,18 @@ export async function refreshPriceForInvestment(
         .toUpperCase()
         .replace(/\.BA$/i, "")
         .trim();
-      const ratio = getCedearRatio(normalizedTicker);
+      // 1) Override del usuario (campo cedearRatio en la inversión)
+      // 2) Fallback a la tabla local
+      const ratio = inv.cedearRatio
+        ? parseFloat(inv.cedearRatio)
+        : getCedearRatio(normalizedTicker);
       if (!ratio) {
         return {
           ok: false,
-          reason: `Ratio CEDEAR no conocido para ${normalizedTicker}. Agregalo a cedear-ratios.ts o actualizá manual.`,
+          reason: `Ratio CEDEAR no conocido para ${normalizedTicker}. Ponelo manualmente en "Ratio CEDEAR" al editar la inversión.`,
         };
       }
+      const ratioSource = inv.cedearRatio ? "override" : "tabla";
 
       const result = await fetchFinnhubQuote(normalizedTicker);
       if (!result.ok) return { ok: false, reason: result.reason };
@@ -98,7 +103,7 @@ export async function refreshPriceForInvestment(
         ok: true,
         newValueUsd: newUsd.toFixed(2),
         newValueArs: newArs.toFixed(2),
-        source: `finnhub US + ratio CEDEAR 1:${ratio}`,
+        source: `finnhub US + ratio 1:${ratio} (${ratioSource})`,
       };
     }
 

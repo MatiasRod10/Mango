@@ -12,6 +12,8 @@ export type PreviewInput = {
   assetClass: AssetClass;
   ticker: string;
   quantity: number;
+  /** Solo para cedear: si el user provee override, lo usamos en vez de la tabla. */
+  cedearRatioOverride?: number;
 };
 
 export type PreviewResult =
@@ -62,6 +64,10 @@ export async function previewMarketValueAction(
     quantity: input.quantity.toString(),
     averagePriceArs: null,
     currentPriceArs: null,
+    cedearRatio:
+      input.assetClass === "cedear" && input.cedearRatioOverride
+        ? input.cedearRatioOverride.toString()
+        : null,
     status: "active",
     risk: "medium",
     notes: null,
@@ -82,7 +88,9 @@ export async function previewMarketValueAction(
     source: result.source,
     ratio:
       input.assetClass === "cedear"
-        ? (getCedearRatio(input.ticker) ?? undefined)
+        ? (input.cedearRatioOverride ??
+          getCedearRatio(input.ticker) ??
+          undefined)
         : undefined,
     usdRate: rate,
   };
