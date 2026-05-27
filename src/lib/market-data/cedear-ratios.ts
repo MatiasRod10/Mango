@@ -11,16 +11,18 @@
  */
 
 export const CEDEAR_RATIOS: Record<string, number> = {
-  // === ETFs (los que mencionaste) ===
-  SPY: 20, // S&P 500 ETF
-  QQQ: 12, // Nasdaq 100 ETF
+  // === ETFs ===
+  // Ratios verificados con datos del usuario (INVIU) en may 2026 — pueden
+  // cambiar con el tiempo. Si auto-pricing da +20% off vs broker, revisar.
+  SPY: 30, // S&P 500 ETF (era 20, ajustado)
+  QQQ: 15, // Nasdaq 100 ETF (era 12, ajustado tras data INVIU)
   FXI: 10, // iShares China Large-Cap ETF
   EWZ: 5,  // iShares Brazil ETF
-  DIA: 8,  // SPDR Dow Jones ETF
-  IWM: 8,  // iShares Russell 2000 ETF
+  DIA: 20, // SPDR Dow Jones ETF
+  IWM: 12, // iShares Russell 2000 ETF
   VTI: 20, // Vanguard Total Stock Market
   EEM: 6,  // iShares MSCI Emerging Markets
-  IBIT: 12, // iShares Bitcoin Trust
+  IBIT: 20, // iShares Bitcoin Trust
 
   // === Tech ===
   AAPL: 10,
