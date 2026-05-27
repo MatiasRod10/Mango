@@ -23,7 +23,8 @@ export default async function AppGroupLayout({
   ]);
 
   if (!membership || !entity) {
-    redirect("/handler/sign-in");
+    // Hay user pero no entity → onboarding
+    redirect("/onboarding");
   }
 
   const memberships = await getMembershipsByEntity(entity.id);

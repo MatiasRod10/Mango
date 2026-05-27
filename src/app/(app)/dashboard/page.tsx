@@ -1,3 +1,4 @@
+import { DashboardEmptyState } from "@/components/dashboard/empty-state";
 import { HeroBalance } from "@/components/dashboard/hero-balance";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { RecentMovements } from "@/components/dashboard/recent-movements";
@@ -39,6 +40,9 @@ export default async function DashboardPage() {
   const topCats = topGastoCategories(thisMonth, 4);
   const recent = thisMonth.slice(0, 8);
 
+  // Sin nada cargado en NINGÚN mes (no solo el activo) → empty state full
+  const hasAnyData = thisMonth.length > 0 || lastMonth.length > 0;
+
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <HeroBalance
@@ -48,9 +52,15 @@ export default async function DashboardPage() {
         currency={currency}
       />
       <QuickActions />
-      <StatsGrid stats={stats} currency={currency} />
-      <TopCategories items={topCats} currency={currency} />
-      <RecentMovements movements={recent} currency={currency} />
+      {!hasAnyData ? (
+        <DashboardEmptyState />
+      ) : (
+        <>
+          <StatsGrid stats={stats} currency={currency} />
+          <TopCategories items={topCats} currency={currency} />
+          <RecentMovements movements={recent} currency={currency} />
+        </>
+      )}
     </div>
   );
 }
