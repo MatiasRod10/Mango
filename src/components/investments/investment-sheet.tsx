@@ -36,6 +36,7 @@ import {
   RISK_LABEL,
 } from "@/lib/utils/asset-class";
 import type { Investment } from "@/lib/db/schema";
+import { MarketDataPreview } from "./market-data-preview";
 
 type Props = {
   open: boolean;
@@ -114,6 +115,8 @@ export function InvestmentSheet({ open, onClose, editing }: Props) {
   const investedCurrency = form.watch("investedCurrency");
   const currentValueCurrency = form.watch("currentValueCurrency");
   const risk = form.watch("risk");
+  const ticker = form.watch("ticker") ?? "";
+  const quantity = form.watch("quantity");
 
   useEffect(() => {
     if (open) {
@@ -364,6 +367,17 @@ export function InvestmentSheet({ open, onClose, editing }: Props) {
                 {form.formState.errors.currentValue.message}
               </p>
             )}
+
+            <MarketDataPreview
+              assetClass={assetClass}
+              ticker={ticker}
+              quantity={quantity}
+              preferredCurrency={currentValueCurrency}
+              onUseValue={(value, currency) => {
+                form.setValue("currentValue", value, { shouldValidate: true });
+                form.setValue("currentValueCurrency", currency);
+              }}
+            />
           </div>
 
           <div className="space-y-1.5">
